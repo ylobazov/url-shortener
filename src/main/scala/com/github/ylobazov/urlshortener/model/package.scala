@@ -6,10 +6,10 @@ package object model {
     type Result = R
   }
 
-  case class ShortenUrlResponse(id: String)
-  case class ShortenUrlRequest(target: String) extends ActorRequest[ShortenUrlResponse]
+  case class ShortenUriResponse(id: String)
+  case class ShortenUriRequest(target: String) extends ActorRequest[ShortenUriResponse]
 
-  case class GetShortenedUrlResponse(target: String)
-  case class GetShortenedUrlRequest(id: String) extends ActorRequest[GetShortenedUrlResponse]
+  case class GetShortenedUriResponse(target: String)
+  case class GetShortenedUriRequest(id: String) extends ActorRequest[GetShortenedUriResponse]
 
 }

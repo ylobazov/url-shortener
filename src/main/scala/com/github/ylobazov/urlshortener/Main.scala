@@ -6,6 +6,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.{ActorMaterializer, Materializer}
 import akka.util.Timeout
+import com.github.ylobazov.urlshortener.rest.UrlShortenerApi
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal

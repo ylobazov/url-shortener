@@ -22,13 +22,14 @@ class UrlShortenerActor extends Actor with LoggingSupport {
 
   def handle[R](req: ActorRequest[R]): R = {
     req match {
-      case ShortenUrlRequest(target) =>
+      case ShortenUriRequest(target) =>
         val id = encode(target)
         storage += id -> target
-        ShortenUrlResponse(id)
-      case GetShortenedUrlRequest(id) =>
+        log.info("STORAGE CONTENT: " + storage)
+        ShortenUriResponse(id)
+      case GetShortenedUriRequest(id) =>
         val target = storage(id)
-        GetShortenedUrlResponse(target)
+        GetShortenedUriResponse(target)
     }
   }
 
