@@ -6,25 +6,30 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.{ActorMaterializer, Materializer}
 import akka.util.Timeout
+import com.github.ylobazov.urlshortener.actor.UrlShortenerActor
+import com.github.ylobazov.urlshortener.repository.{DbCodecs, UrlRepository}
 import com.github.ylobazov.urlshortener.rest.UrlShortenerApi
+import com.github.ylobazov.urlshortener.util.LoggingSupport
+import org.mongodb.scala.MongoClient
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 
-object Main extends App with UrlShortenerApi with LoggingSupport {
+object Main extends App with DbCodecs with UrlShortenerApi with LoggingSupport {
 
   implicit val system: ActorSystem = ActorSystem("url-shortener-actor-system")
   private val appConfig = system.extension(UrlShortenerConfig)
 
-  //  override implicit val mongoUri: URI = loanAppConfig.mongoUri
   override implicit val ec: ExecutionContext = system.dispatcher
   override implicit val timeout: Timeout = Timeout(5, TimeUnit.SECONDS)
 
-  //  private val applicationRepository = ApplicationMongoRepository(ExecutionContext.fromExecutor(null))
+  val db = MongoClient(appConfig.mongoUri).getDatabase(appConfig.dbName).withCodecRegistry(codecRegistry)
+
+  private val urlRepo = new UrlRepository(db)
 
   implicit val materializer: Materializer = ActorMaterializer()
 
-  override val urlShortenerActor = system.actorOf(UrlShortenerActor.props, "UrlShortenerActor")
+  override val urlShortenerActor = system.actorOf(UrlShortenerActor.props(urlRepo), "UrlShortenerActor")
   log.info(s"UrlShortenerActor [${urlShortenerActor.path}] is started")
 
   try {

@@ -6,8 +6,9 @@ import akka.http.scaladsl.model.{HttpRequest, Uri}
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.pattern.ask
 import akka.util.Timeout
-import com.github.ylobazov.urlshortener.LoggingSupport
 import com.github.ylobazov.urlshortener.model.{GetShortenedUriRequest, ShortenUriRequest}
+import com.github.ylobazov.urlshortener.util.LoggingSupport
+import java.net.{URI => JUri}
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
@@ -25,8 +26,10 @@ trait UrlShortenerApi extends Directives {
       post {
         extractRequest { httpRequest =>
           entity(as[String]) { uri =>
-            validate(Try(Uri(uri)).isSuccess, "Provided URI is invalid: " + uri) {
-              log.info(s"Request to shorten a uri")
+            validate(Try(new JUri(uri)).isSuccess, "Provided URI is invalid: " + uri) {
+              log.info(s"HTTP_REQUEST: " + httpRequest)
+              log.info(s"BODY: " + uri)
+              log.info(s"Request to shorten a uri: " + uri)
               complete {
                 val host = extractHostAddress(httpRequest)
                 val req = ShortenUriRequest(uri)
@@ -49,7 +52,7 @@ trait UrlShortenerApi extends Directives {
         onComplete {
           log.info(s"Request to get original uri by id=[$id]")
           val req = GetShortenedUriRequest(id)
-          urlShortenerActor.ask(req).mapTo[req.Result].map(_.target)
+          urlShortenerActor.ask(req).mapTo[req.Result].map(res => res.target)
         } {
           case Success(target) => redirect(Uri(target), PermanentRedirect)
           case Failure(ex) => complete((InternalServerError, s"An error occurred: ${ex.getMessage}"))
@@ -57,13 +60,6 @@ trait UrlShortenerApi extends Directives {
       }
     }
 
-  val indexPage: Route =
-    pathSingleSlash {
-      get {
-        getFromResource("web/index.html")
-      }
-    }
-
-  val urlShortenerRoute: Route = shortenUri ~ getToDestination ~ indexPage
+  val urlShortenerRoute: Route = shortenUri ~ getToDestination
 
 }

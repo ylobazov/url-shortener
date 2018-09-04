@@ -1,4 +1,4 @@
-package com.github.ylobazov.urlshortener
+package com.github.ylobazov.urlshortener.util
 
 import org.slf4j.LoggerFactory
 

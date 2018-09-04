@@ -1,5 +1,7 @@
 package com.github.ylobazov.urlshortener
 
+import org.mongodb.scala.bson.ObjectId
+
 package object model {
 
   sealed trait ActorRequest[R] {
@@ -11,5 +13,10 @@ package object model {
 
   case class GetShortenedUriResponse(target: String)
   case class GetShortenedUriRequest(id: String) extends ActorRequest[GetShortenedUriResponse]
+
+  case class ShortenedUrl(_id :ObjectId, key: String, target: String)
+  object ShortenedUrl{
+    def apply(key: String, target: String): ShortenedUrl = new ShortenedUrl(new ObjectId(), key, target)
+  }
 
 }
