@@ -56,29 +56,3 @@ There are 4 variables to configure:
 2. **HTTP_PORT** - port, at which application is being runned. Default: **9000**
 3. **MONGO_URI** - connection string to Mongo server. Default: **mongodb://localhost:27017**
 4. **URL_SHORTENER_DB_NAME** - database name at Mongo server. Default: **url-shortener**
-
-##Implementation Motivation:
-- **Scala** was chosen as a language I want to continue work professionally.
-- **Akka + Akka-Http** bundle was chosen due to my familiarity with it. 
-Originally, I was considering to use Http4s + Monix (for service layer), 
-but with given time frame, I was not sure about picking tools I am little familiar with.
-*Note*: I *do* realize that Java + SpringBoot solution would take a lot less code to implement, but c'mon it is Java! :)
-- **MongoDb** as a database. I find this task fits perfectly for NoSql database solution. 
-I was thinking about Reddis, but see time frame comment above :)
-- I *do use a hash function* to generate the aliases after all.
-The motivation for it was dictated by 4th requirement: 
-*Additionally, if a URL has already been shortened by the system, and it is entered a second time, the first 
- shortened URL should be given back to the user.*
-I am not aware of any other more or less safe solution, which would give the same alias for repeating calls. 
-I see two options to do it: 
-  1. Generate aliases based on the original URL (hashing)
-  2. Search for the original URL presence in the DB (Not an option, given the possible complexity of the target URLs)
-If there is any other solution, I would be glad to learn it :)
-Also, I considered a classic approach to this task, which is incremental id generation and Bijection conversion to Base64.
-But this approach clearly disobeys the aforementioned requirement
-- *I witterly did not implement UI*. 
-Although, it is rather simple requirement, given that last time I made something on UI was five years ago, 
-it did provided a lot of fuss for me. 
-I have invested a big portion of time to finally recall how it is done, but apparently not quite :)
-In the end it broke again and I decided to move on with other tasks, 
-which I consider more important since everything is still available via API.
