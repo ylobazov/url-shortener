@@ -18,16 +18,15 @@ import scala.util.control.NonFatal
 object Main extends App with DbCodecs with UrlShortenerApi with LoggingSupport {
 
   implicit val system: ActorSystem = ActorSystem("url-shortener-actor-system")
-  private val appConfig = system.extension(UrlShortenerConfig)
+  implicit val materializer: Materializer = ActorMaterializer()
 
   override implicit val ec: ExecutionContext = system.dispatcher
   override implicit val timeout: Timeout = Timeout(5, TimeUnit.SECONDS)
 
-  val db = MongoClient(appConfig.mongoUri).getDatabase(appConfig.dbName).withCodecRegistry(codecRegistry)
+  private val appConfig = system.extension(UrlShortenerConfig)
 
+  private val db = MongoClient(appConfig.mongoUri).getDatabase(appConfig.dbName).withCodecRegistry(codecRegistry)
   private val urlRepo = new UrlRepository(db)
-
-  implicit val materializer: Materializer = ActorMaterializer()
 
   override val urlShortenerActor = system.actorOf(UrlShortenerActor.props(urlRepo), "UrlShortenerActor")
   log.info(s"UrlShortenerActor [${urlShortenerActor.path}] is started")

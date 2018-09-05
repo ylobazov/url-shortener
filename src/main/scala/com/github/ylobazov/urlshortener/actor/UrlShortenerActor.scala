@@ -31,17 +31,18 @@ class UrlShortenerActor(urlRepo: UrlRepository) extends Actor with LoggingSuppor
         log.info("ShortenUriRequest: " + target)
         val key = encode(target)
 
-        /*The most dangerous place. Collisions are possible. made to meet the following requirement:
+        /*The most dangerous place. Collisions are possible. Here in place to meet the following requirement:
          4. Additionally, if a URL has already been shortened by the system,
          and it is entered a second time, the first shortened URL should be given back to the user.
         */
-        urlRepo.findOne(key).fallbackTo {
-          urlRepo.insert(ShortenedUrl(key, target))
-        }.map(_ => ShortenUriResponse(key))
-
+        val resp = urlRepo.findOne(key).flatMap {
+          case Some(entity) => Future(entity.key)
+          case None => urlRepo.insert(ShortenedUrl(key, target)).map(_ => key)
+        }.map(ShortenUriResponse)
+        resp
       case GetShortenedUriRequest(key) =>
         log.info("GetShortenedUriRequest: " + key)
-        urlRepo.findOne(key).map(res => GetShortenedUriResponse(res.target))
+        urlRepo.findOne(key).map(res => GetShortenedUriResponse(res.map(_.target)))
     }
   }
 

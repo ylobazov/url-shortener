@@ -20,8 +20,8 @@ class UrlRepository(db: MongoDatabase)(implicit ec: ExecutionContext) extends Lo
     collection.insertOne(entity).head().map(_ => ())
   }
 
-  def findOne(key: String): Future[ShortenedUrl] = {
-    collection.find(equal("key", key)).first().head()
+  def findOne(key: String): Future[Option[ShortenedUrl]] = {
+    collection.find(equal("key", key)).first().headOption()
   }
 
   private def ensureIndexes(): Unit = {

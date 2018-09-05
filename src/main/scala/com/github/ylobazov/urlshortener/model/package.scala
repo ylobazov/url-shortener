@@ -8,11 +8,11 @@ package object model {
     type Result = R
   }
 
-  case class ShortenUriResponse(id: String)
+  case class ShortenUriResponse(key: String)
   case class ShortenUriRequest(target: String) extends ActorRequest[ShortenUriResponse]
 
-  case class GetShortenedUriResponse(target: String)
-  case class GetShortenedUriRequest(id: String) extends ActorRequest[GetShortenedUriResponse]
+  case class GetShortenedUriResponse(target: Option[String])
+  case class GetShortenedUriRequest(key: String) extends ActorRequest[GetShortenedUriResponse]
 
   case class ShortenedUrl(_id :ObjectId, key: String, target: String)
   object ShortenedUrl{
